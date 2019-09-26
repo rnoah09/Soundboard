@@ -181,6 +181,8 @@ public class SoundBoardActivity extends AppCompatActivity  {
         buttonG.setOnClickListener(keyboardListener);
         buttonGSharp.setOnClickListener(keyboardListener);
 
+        final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
         pitchBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -247,7 +249,27 @@ public class SoundBoardActivity extends AppCompatActivity  {
 
             }
         });
-        final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
+        toggleButtonRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+
+                }
+                else{
+
+                }
+            }
+        });
+
+        buttonPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
         buttonLeft.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -312,11 +334,6 @@ public class SoundBoardActivity extends AppCompatActivity  {
 
     }
 
-//    @Override
-//    public void onClick(View view) {
-
-
-//    }
 
     private class KeyboardListener implements View.OnClickListener{
 
