@@ -3,10 +3,13 @@ package com.example.soundboard;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,15 +17,22 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.ToggleButton;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class SoundBoardActivity extends AppCompatActivity {
+public class SoundBoardActivity extends AppCompatActivity  {
     private SoundPool soundPool;
+    private SoundPool otamatoneSoundPool;
     private int soundID;
     boolean loaded = false;
     private Button buttonRight;
     private Button buttonLeft;
+    private ToggleButton toggleButtonRecord;
+    private Button buttonPlay;
     private Button buttonA;
     private Button buttonBFlat;
     private Button buttonB;
@@ -39,27 +49,44 @@ public class SoundBoardActivity extends AppCompatActivity {
     private Switch otamatoneSoundBoardSwitch;
     private int seekBarProgress;
     private float volumePlaceholder;
+    private Map<Integer, Integer> noteMap;
+    private ArrayList<Note> noteArrayList;
+    private int aNote;
+    private int bbNote;
+    private int bNote;
+    private int cNote;
+    private int cSharpNote;
+    private int dNote;
+    private int dSharpNote;
+    private int eNote;
+    private int fNote;
+    private int fSharpNote;
+    private int gNote;
+    private int gSharpNote;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         wireWidgets();
+        initializeSoundPool();
         setListeners();
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId,
-                                       int status) {
-                loaded = true;
-            }
-        });
-        soundID = soundPool.load(this, R.raw.beep2, 1);
 
 
+    }
+
+    private void delay(int millisDelay){
+        try{
+            Thread.sleep(millisDelay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void wireWidgets() {
@@ -81,10 +108,78 @@ public class SoundBoardActivity extends AppCompatActivity {
         buttonG = findViewById(R.id.button_g_main);
         buttonGSharp = findViewById(R.id.button_gsharp_main);
 
+        buttonPlay = findViewById(R.id.button_play_main);
+        toggleButtonRecord = findViewById(R.id.togglebutton_record_main);
+
+    }
+
+    private void initializeSoundPool() {
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+
+            }
+        });
+
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        otamatoneSoundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+        otamatoneSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                loaded = true;
+            }
+        });
+
+        soundID = otamatoneSoundPool.load(this, R.raw.beep2, 1);
+
+
+        aNote = soundPool.load(this, R.raw.scalea, 1);
+        bbNote = soundPool.load(this, R.raw.scalebb, 1);
+        bNote = soundPool.load(this, R.raw.scaleb, 1);
+        cNote = soundPool.load(this, R.raw.scalec, 1);
+        cSharpNote = soundPool.load(this, R.raw.scalecs, 1);
+        dNote = soundPool.load(this, R.raw.scaled, 1);
+        dSharpNote = soundPool.load(this, R.raw.scaleds, 1);
+        eNote = soundPool.load(this, R.raw.scalee, 1);
+        fNote = soundPool.load(this, R.raw.scalef, 1);
+        fSharpNote = soundPool.load(this, R.raw.scalefs, 1);
+        gNote = soundPool.load(this, R.raw.scaleg, 1);
+        gSharpNote = soundPool.load(this, R.raw.scalegs, 1);
+
+        noteMap = new HashMap<>();
+        noteMap.put(buttonA.getId(), aNote);
+        noteMap.put(buttonBFlat.getId(), bbNote);
+        noteMap.put(buttonB.getId(), bNote);
+        noteMap.put(buttonC.getId(), cNote);
+        noteMap.put(buttonCSharp.getId(), cSharpNote);
+        noteMap.put(buttonD.getId(), dNote);
+        noteMap.put(buttonDSharp.getId(), dSharpNote);
+        noteMap.put(buttonE.getId(),eNote);
+        noteMap.put(buttonF.getId(), fNote);
+        noteMap.put(buttonFSharp.getId(), fSharpNote);
+        noteMap.put(buttonG.getId(), gNote);
+        noteMap.put(buttonGSharp.getId(),gSharpNote);
+
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void setListeners() {
+
+        KeyboardListener keyboardListener = new KeyboardListener();
+        buttonA.setOnClickListener(keyboardListener);
+        buttonBFlat.setOnClickListener(keyboardListener);
+        buttonB.setOnClickListener(keyboardListener);
+        buttonC.setOnClickListener(keyboardListener);
+        buttonCSharp.setOnClickListener(keyboardListener);
+        buttonD.setOnClickListener(keyboardListener);
+        buttonDSharp.setOnClickListener(keyboardListener);
+        buttonE.setOnClickListener(keyboardListener);
+        buttonF.setOnClickListener(keyboardListener);
+        buttonFSharp.setOnClickListener(keyboardListener);
+        buttonG.setOnClickListener(keyboardListener);
+        buttonGSharp.setOnClickListener(keyboardListener);
 
         pitchBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -124,6 +219,9 @@ public class SoundBoardActivity extends AppCompatActivity {
                     buttonFSharp.setVisibility(View.VISIBLE);
                     buttonG.setVisibility(View.VISIBLE);
                     buttonGSharp.setVisibility(View.VISIBLE);
+
+                    buttonPlay.setVisibility(View.VISIBLE);
+                    toggleButtonRecord.setVisibility(View.VISIBLE);
                 }
                 else{
                     buttonLeft.setVisibility(View.VISIBLE);
@@ -142,25 +240,27 @@ public class SoundBoardActivity extends AppCompatActivity {
                     buttonFSharp.setVisibility(View.GONE);
                     buttonG.setVisibility(View.GONE);
                     buttonGSharp.setVisibility(View.GONE);
+
+                    buttonPlay.setVisibility(View.GONE);
+                    toggleButtonRecord.setVisibility(View.GONE);
                 }
 
             }
         });
-
+        final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         buttonLeft.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_RELEASE){
 
-                    soundPool.autoPause();
+                    otamatoneSoundPool.autoPause();
                     Log.e("Test", "Stopped sound");
 
                 }
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS){
 
-                    AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
                     float actualVolume = (float) audioManager
                             .getStreamVolume(AudioManager.STREAM_MUSIC);
                     float maxVolume = (float) audioManager
@@ -169,7 +269,7 @@ public class SoundBoardActivity extends AppCompatActivity {
                     volumePlaceholder = volume;
 
                     if (loaded) {
-                        soundPool.play(soundID, volume, volume, 1, -1, (float) (((1.5 / 100.0) * seekBarProgress) + 0.5));
+                        otamatoneSoundPool.play(soundID, volume, volume, 1, -1, (float) (((1.5 / 100.0) * seekBarProgress) + 0.5));
 
                         Log.e("Test", "Played sound");
                     }
@@ -185,14 +285,13 @@ public class SoundBoardActivity extends AppCompatActivity {
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_RELEASE){
 
-                soundPool.autoPause();
-                Log.e("Test", "Played sound");
+                otamatoneSoundPool.autoPause();
+                Log.e("Test", "Stopped sound");
 
                 }
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS){
 
-                    AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
                     float actualVolume = (float) audioManager
                             .getStreamVolume(AudioManager.STREAM_MUSIC);
                     float maxVolume = (float) audioManager
@@ -201,7 +300,7 @@ public class SoundBoardActivity extends AppCompatActivity {
                     volumePlaceholder = volume;
 
                     if (loaded) {
-                        soundPool.play(soundID, volume, volume, 1, -1, (float) (((1.5 / 100.0) * seekBarProgress) + 0.5));
+                        otamatoneSoundPool.play(soundID, volume, volume, 1, -1, (float) (((1.5 / 100.0) * seekBarProgress) + 0.5));
 
                         Log.e("Test", "Played sound");
                     }
@@ -212,5 +311,23 @@ public class SoundBoardActivity extends AppCompatActivity {
         });
 
     }
+
+//    @Override
+//    public void onClick(View view) {
+
+
+//    }
+
+    private class KeyboardListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View view) {
+            int songId = noteMap.get(view.getId());
+            if(songId != 0){
+                soundPool.play(songId,1,1,1,0,1);
+            }
+        }
+    }
+
 
 }
