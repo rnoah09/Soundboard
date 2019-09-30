@@ -1,22 +1,28 @@
 package com.example.soundboard;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
+import android.text.Layout;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.File;
@@ -51,6 +57,7 @@ public class SoundBoardActivity extends AppCompatActivity  {
     private float volumePlaceholder;
     private Map<Integer, Integer> noteMap;
     private ArrayList<Note> noteArrayList;
+    private long currentTimePlaceHolder;
     private int aNote;
     private int bbNote;
     private int bNote;
@@ -74,11 +81,9 @@ public class SoundBoardActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         wireWidgets();
         initializeSoundPool();
+        noteArrayList = new ArrayList<Note>();
         setListeners();
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-
-
     }
 
     private void delay(int millisDelay){
@@ -87,6 +92,15 @@ public class SoundBoardActivity extends AppCompatActivity  {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void enableButtons() {
+
+
+    }
+
+    public void disableButtons(){
+
     }
 
     private void wireWidgets() {
@@ -254,10 +268,13 @@ public class SoundBoardActivity extends AppCompatActivity  {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b){
-
+                    noteArrayList.clear();
+                    Log.e("Test", "Recording");
+                    Toast.makeText(SoundBoardActivity.this, "Recording!", Toast.LENGTH_SHORT).show();
+                    currentTimePlaceHolder = SystemClock.elapsedRealtime();
                 }
                 else{
-
+                    Log.e("Test", "Stopped recording");
                 }
             }
         });
@@ -266,6 +283,17 @@ public class SoundBoardActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
+                disableButtons();
+                Log.e("Test", "Playing recording");
+                if(noteArrayList.size()!= 0) {
+                    for (int i = noteArrayList.size() - 1; i >= 0; --i) {
+                        soundPool.play(noteArrayList.get(i).getSoundId(), 1, 1, 1, 0, 1);
+                        delay(noteArrayList.get(i).getDelay());
+                        soundPool.stop(noteArrayList.get(i).getSoundId());
+                    }
+                }
+                enableButtons();
+                Log.e("Test", "Stopped playing recording");
             }
         });
 
@@ -342,6 +370,10 @@ public class SoundBoardActivity extends AppCompatActivity  {
             int songId = noteMap.get(view.getId());
             if(songId != 0){
                 soundPool.play(songId,1,1,1,0,1);
+            }
+            if (toggleButtonRecord.isChecked()){
+                noteArrayList.add(noteArrayList.size(), new Note(songId,(int)(SystemClock.elapsedRealtime() - currentTimePlaceHolder)));
+                currentTimePlaceHolder = SystemClock.elapsedRealtime();
             }
         }
     }
