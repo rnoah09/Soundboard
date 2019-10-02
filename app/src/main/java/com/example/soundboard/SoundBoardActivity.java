@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
@@ -94,12 +95,21 @@ public class SoundBoardActivity extends AppCompatActivity  {
         }
     }
 
-    public void enableButtons() {
+    public void toggleButtonEnabled() {
+        ConstraintLayout layout = findViewById(R.id.constraintlayout_layout_main);
 
+        for(int index=0; index<layout.getChildCount(); ++index) {
+            View nextChild = layout.getChildAt(index);
+            if(nextChild instanceof Button) {
+                if(nextChild.isEnabled()){
+                    nextChild.setEnabled(false);
+                }
+                else{
+                    nextChild.setEnabled(true);
+                }
+            }
 
-    }
-
-    public void disableButtons(){
+        }
 
     }
 
@@ -178,7 +188,38 @@ public class SoundBoardActivity extends AppCompatActivity  {
 
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    private class AsyncTaskRunner extends AsyncTask<Void, Void, Void> {
+
+        private String resp;
+        ProgressDialog progressDialog;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for (int i = noteArrayList.size() - 1; i >= 0; --i) {
+                delay(noteArrayList.get(i).getDelay());
+                soundPool.play(noteArrayList.get(i).getSoundId(), 1, 1, 1, 0, 1);
+                soundPool.stop(noteArrayList.get(i).getSoundId());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            toggleButtonEnabled();
+            Log.e("Test", "Playing recording");
+            Toast.makeText(SoundBoardActivity.this, "Playing!", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.e("Test", "Stopped playing recording");
+            toggleButtonEnabled();
+        }
+    }
+
+        @SuppressLint("ClickableViewAccessibility")
+
     private void setListeners() {
 
         KeyboardListener keyboardListener = new KeyboardListener();
@@ -272,9 +313,13 @@ public class SoundBoardActivity extends AppCompatActivity  {
                     Log.e("Test", "Recording");
                     Toast.makeText(SoundBoardActivity.this, "Recording!", Toast.LENGTH_SHORT).show();
                     currentTimePlaceHolder = SystemClock.elapsedRealtime();
+                    buttonPlay.setEnabled(false);
+                    otamatoneSoundBoardSwitch.setEnabled(false);
                 }
                 else{
                     Log.e("Test", "Stopped recording");
+                    buttonPlay.setEnabled(true);
+                    otamatoneSoundBoardSwitch.setEnabled(true);
                 }
             }
         });
@@ -283,17 +328,12 @@ public class SoundBoardActivity extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
 
-                disableButtons();
-                Log.e("Test", "Playing recording");
                 if(noteArrayList.size()!= 0) {
-                    for (int i = noteArrayList.size() - 1; i >= 0; --i) {
-                        soundPool.play(noteArrayList.get(i).getSoundId(), 1, 1, 1, 0, 1);
-                        delay(noteArrayList.get(i).getDelay());
-                        soundPool.stop(noteArrayList.get(i).getSoundId());
-                    }
+                    AsyncTaskRunner runner = new AsyncTaskRunner();
+                    runner.execute();
+
                 }
-                enableButtons();
-                Log.e("Test", "Stopped playing recording");
+
             }
         });
 
@@ -372,7 +412,7 @@ public class SoundBoardActivity extends AppCompatActivity  {
                 soundPool.play(songId,1,1,1,0,1);
             }
             if (toggleButtonRecord.isChecked()){
-                noteArrayList.add(noteArrayList.size(), new Note(songId,(int)(SystemClock.elapsedRealtime() - currentTimePlaceHolder)));
+                noteArrayList.add(0, new Note(songId,(int)(SystemClock.elapsedRealtime() - currentTimePlaceHolder)));
                 currentTimePlaceHolder = SystemClock.elapsedRealtime();
             }
         }
