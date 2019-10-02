@@ -158,7 +158,6 @@ public class SoundBoardActivity extends AppCompatActivity  {
 
         soundID = otamatoneSoundPool.load(this, R.raw.beep2, 1);
 
-
         aNote = soundPool.load(this, R.raw.scalea, 1);
         bbNote = soundPool.load(this, R.raw.scalebb, 1);
         bNote = soundPool.load(this, R.raw.scaleb, 1);
@@ -223,6 +222,7 @@ public class SoundBoardActivity extends AppCompatActivity  {
     private void setListeners() {
 
         KeyboardListener keyboardListener = new KeyboardListener();
+
         buttonA.setOnClickListener(keyboardListener);
         buttonBFlat.setOnClickListener(keyboardListener);
         buttonB.setOnClickListener(keyboardListener);
@@ -327,13 +327,10 @@ public class SoundBoardActivity extends AppCompatActivity  {
         buttonPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 if(noteArrayList.size()!= 0) {
                     AsyncTaskRunner runner = new AsyncTaskRunner();
                     runner.execute();
-
                 }
-
             }
         });
 
@@ -343,10 +340,8 @@ public class SoundBoardActivity extends AppCompatActivity  {
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_RELEASE){
-
                     otamatoneSoundPool.autoPause();
                     Log.e("Test", "Stopped sound");
-
                 }
 
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS){
@@ -374,10 +369,8 @@ public class SoundBoardActivity extends AppCompatActivity  {
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_RELEASE){
-
-                otamatoneSoundPool.autoPause();
-                Log.e("Test", "Stopped sound");
-
+                   otamatoneSoundPool.autoPause();
+                   Log.e("Test", "Stopped sound");
                 }
 
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_BUTTON_PRESS){
@@ -395,7 +388,6 @@ public class SoundBoardActivity extends AppCompatActivity  {
                         Log.e("Test", "Played sound");
                     }
                 }
-
                 return false;
             }
         });
