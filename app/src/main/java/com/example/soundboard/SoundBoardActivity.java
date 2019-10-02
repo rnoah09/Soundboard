@@ -88,9 +88,10 @@ public class SoundBoardActivity extends AppCompatActivity  {
     }
 
     private void delay(int millisDelay){
-        try{
+        try {
             Thread.sleep(millisDelay);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -188,10 +189,6 @@ public class SoundBoardActivity extends AppCompatActivity  {
     }
 
     private class AsyncTaskRunner extends AsyncTask<Void, Void, Void> {
-
-        private String resp;
-        ProgressDialog progressDialog;
-
         @Override
         protected Void doInBackground(Void... voids) {
             for (int i = noteArrayList.size() - 1; i >= 0; --i) {
@@ -217,7 +214,7 @@ public class SoundBoardActivity extends AppCompatActivity  {
         }
     }
 
-        @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility")
 
     private void setListeners() {
 
@@ -359,7 +356,6 @@ public class SoundBoardActivity extends AppCompatActivity  {
                         Log.e("Test", "Played sound");
                     }
                 }
-
                 return false;
             }
         });
@@ -409,6 +405,4 @@ public class SoundBoardActivity extends AppCompatActivity  {
             }
         }
     }
-
-
 }
